@@ -1,5 +1,18 @@
 source('source/main.R')
 
+if (!requireNamespace("cowplot", quietly = TRUE)) {
+  install.packages("cowplot")
+} 
+library(cowplot)
+if (!requireNamespace("maps", quietly = TRUE)) {
+  install.packages("maps")
+} 
+library(maps)
+if (!requireNamespace("jsonlite", quietly = TRUE)) {
+  install.packages("jsonlite")
+} 
+library(jsonlite)
+
 dir.create(PATH_FLOODS)
 dir.create(PATH_PREC)
 
@@ -38,11 +51,12 @@ if (is.null(flood_metadata$dfo_ended) || flood_metadata$dfo_ended == "") {
 
 tiff_data <- rast(tiff_file)
 tiff_extent <- ext(tiff_data)
+tiff_extent <- as.vector(tiff_extent)
 
 start_date <- as.Date(flood_metadata$dfo_began)
 end_date <- as.Date(flood_metadata$dfo_ended)
 
-PATH_MSWEP <- paste0(PATH_PREC, "mswep-v2-8_tp_mm_land_197901_202012_025_daily.nc")
+PATH_MSWEP <- paste0(PATH_PREC, "/mswep-v2-8_tp_mm_land_197901_202012_025_daily.nc")
 nc <- nc_open(PATH_MSWEP)
 time_var <- ncvar_get(nc, "time")
 time_units <- ncatt_get(nc, "time", "units")$value
@@ -65,7 +79,7 @@ if (length(time_indices) == 0) {
 
 nc_close(nc)
 
-suppressWarnings(mswep_subset <- rast(mswep_path, subds = "mask", lyrs = time_indices))
+suppressWarnings(mswep_subset <- rast(PATH_MSWEP, subds = "mask", lyrs = time_indices))
 
 crs(mswep_subset) <- "EPSG:4326"
 ext(mswep_subset) <- c(-180, 180, -90, 90)
@@ -83,6 +97,7 @@ if (nlyr(mswep_cropped) > 1) {
 
 tiff_df <- as.data.frame(tiff_data, xy = TRUE)
 colnames(tiff_df) <- c("lon", "lat", "value")
+tiff_df <- as.data.frame(lapply(tiff_df, as.numeric))
 
 unlink(temp_dir, recursive = TRUE)
 
@@ -137,4 +152,24 @@ p2 <- ggplot() +
 combined_plot <- plot_grid(p1, p2, ncol = 2, nrow = 1)
 
 print(combined_plot)
+
+p1 <- ggplot2::ggplot() +
+  ggplot2::geom_raster(data = tiff_df, ggplot2::aes(x = lon, y = lat, fill = value)) +
+  ggplot2::geom_path(data = world_map, ggplot2::aes(x = long, y = lat, group = group), 
+                     color = "black", linewidth = 0.3) +
+  ggplot2::scale_fill_gradient(low = "white", high = "blue", 
+                               name = "Flood\nExposure",
+                               na.value = "transparent") +
+  ggplot2::coord_fixed(xlim = c(tiff_extent[1], tiff_extent[2]),
+                       ylim = c(tiff_extent[3], tiff_extent[4]),
+                       expand = FALSE) +
+  ggplot2::labs(title = paste0("Flood Exposure - DFO ", flood_metadata$dfo_id, 
+                               "\n", flood_metadata$dfo_main_cause, " (", 
+                               flood_metadata$dfo_country, ")"), 
+                x = "Longitude", y = "Latitude") +
+  ggplot2::theme_minimal() +
+  ggplot2::theme(panel.grid.major = ggplot2::element_line(color = "gray90", linewidth = 0.2),
+                 panel.grid.minor = ggplot2::element_blank(),
+                 panel.background = ggplot2::element_rect(fill = "white", color = NA),
+                 plot.background = ggplot2::element_rect(fill = "white", color = NA))
 

@@ -8,14 +8,14 @@ suppressPackageStartupMessages({
     install.packages("lubridate")
   }
   library(lubridate)
+  # if (!requireNamespace("raster", quietly = TRUE)) {
+  #   install.packages("raster")
+  # }
+  # library(raster)
   if (!requireNamespace("ggplot2", quietly = TRUE)) {
     install.packages("ggplot2")
   }
   library(ggplot2)
-  if (!requireNamespace("raster", quietly = TRUE)) {
-    install.packages("raster")
-  }
-  library(raster)
   if (!requireNamespace("ncdf4", quietly = TRUE)) {
     install.packages("ncdf4")
   }
@@ -32,10 +32,18 @@ suppressPackageStartupMessages({
     install.packages("stars")
   } 
   library(stars)
+  if (!requireNamespace("parallel", quietly = TRUE)) {
+    install.packages("parallel")
+  } 
+  library(parallel)
+  if (!requireNamespace("terra", quietly = TRUE)) {
+    install.packages("terra")
+  } 
+  library(terra)
 })
 
 ## --- Paths ---
-PATH_ROOT <- normalizePath("~/storage/projects-du-praha/ai4pex-czu", mustWork = FALSE)
+PATH_ROOT <- normalizePath("/storage/projects-du-praha/ai4pex-czu", mustWork = FALSE)
 PATH_DATA <- file.path(PATH_ROOT, "data")
 
 PATH_PREC <- file.path(PATH_DATA, "precip")
