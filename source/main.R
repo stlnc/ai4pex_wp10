@@ -46,6 +46,7 @@ PATH_LAI <- file.path(PATH_DATA, "leaf_area_index")
 PATH_SM <- file.path(PATH_DATA, "sm")
 PATH_RUNOFF <- file.path(PATH_DATA, "stations")
 PATH_WS <- file.path(PATH_DATA, "waterstorage")
+PATH_FLOODS <- file.path(PATH_DATA, "floods")
 
 ## --- Variable names ---
 PREC_NAME <- "prec"
