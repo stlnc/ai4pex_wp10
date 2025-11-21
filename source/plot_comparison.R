@@ -1,31 +1,12 @@
-library(terra)
-library(ncdf4)
-library(ggplot2)
-library(cowplot)
-library(maps)
-library(jsonlite)
+source('source/main.R')
+
+dir.create(PATH_FLOODS)
+dir.create(PATH_PREC)
 
 set.seed(Sys.time())
 
-possible_paths <- c(
-  file.path(getwd(), "gfd_v1_4"),
-  "gfd_v1_4",
-  "/home/stlnc/irrigation_project/data/gfd_v1_4",
-  file.path(getwd(), "..", "gfd_v1_4")
-)
-
-gfd_dir <- NULL
-for (path in possible_paths) {
-  if (dir.exists(path)) {
-    gfd_dir <- path
-    break
-  }
-}
-
-if (is.null(gfd_dir)) stop("Cannot find gfd_v1_4 directory")
-
-zip_files <- list.files(gfd_dir, pattern = "\\.zip$", recursive = TRUE, full.names = TRUE)
-if (length(zip_files) == 0) stop("No zip files found in ", gfd_dir)
+zip_files <- list.files(PATH_FLOODS, pattern = "\\.zip$", recursive = TRUE, full.names = TRUE)
+if (length(zip_files) == 0) stop("No zip files found in ", PATH_FLOODS)
 
 selected_zip <- sample(zip_files, 1)
 temp_dir <- tempfile(pattern = "flood_extract_")
@@ -61,8 +42,8 @@ tiff_extent <- ext(tiff_data)
 start_date <- as.Date(flood_metadata$dfo_began)
 end_date <- as.Date(flood_metadata$dfo_ended)
 
-mswep_path <- "mswep-v2-8_tp_mm_land_197901_202012_025_daily.nc"
-nc <- nc_open(mswep_path)
+PATH_MSWEP <- paste0(PATH_PREC, "mswep-v2-8_tp_mm_land_197901_202012_025_daily.nc")
+nc <- nc_open(PATH_MSWEP)
 time_var <- ncvar_get(nc, "time")
 time_units <- ncatt_get(nc, "time", "units")$value
 
@@ -91,7 +72,6 @@ ext(mswep_subset) <- c(-180, 180, -90, 90)
 mswep_subset <- flip(mswep_subset, direction = "vertical")
 
 mswep_subset[mswep_subset == -9999] <- NA
-mswep_subset[mswep_subset < 0] <- NA
 
 mswep_cropped <- crop(mswep_subset, tiff_extent)
 
@@ -157,3 +137,4 @@ p2 <- ggplot() +
 combined_plot <- plot_grid(p1, p2, ncol = 2, nrow = 1)
 
 print(combined_plot)
+
