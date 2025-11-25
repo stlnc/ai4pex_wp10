@@ -1,16 +1,7 @@
 source('source/main.R')
 
-if (!requireNamespace("cowplot", quietly = TRUE)) {
-  install.packages("cowplot")
-} 
 library(cowplot)
-if (!requireNamespace("maps", quietly = TRUE)) {
-  install.packages("maps")
-} 
 library(maps)
-if (!requireNamespace("jsonlite", quietly = TRUE)) {
-  install.packages("jsonlite")
-} 
 library(jsonlite)
 
 dir.create(PATH_FLOODS)
@@ -153,23 +144,26 @@ combined_plot <- plot_grid(p1, p2, ncol = 2, nrow = 1)
 
 print(combined_plot)
 
-p1 <- ggplot2::ggplot() +
-  ggplot2::geom_raster(data = tiff_df, ggplot2::aes(x = lon, y = lat, fill = value)) +
-  ggplot2::geom_path(data = world_map, ggplot2::aes(x = long, y = lat, group = group), 
-                     color = "black", linewidth = 0.3) +
-  ggplot2::scale_fill_gradient(low = "white", high = "blue", 
-                               name = "Flood\nExposure",
-                               na.value = "transparent") +
-  ggplot2::coord_fixed(xlim = c(tiff_extent[1], tiff_extent[2]),
-                       ylim = c(tiff_extent[3], tiff_extent[4]),
-                       expand = FALSE) +
-  ggplot2::labs(title = paste0("Flood Exposure - DFO ", flood_metadata$dfo_id, 
-                               "\n", flood_metadata$dfo_main_cause, " (", 
-                               flood_metadata$dfo_country, ")"), 
-                x = "Longitude", y = "Latitude") +
-  ggplot2::theme_minimal() +
-  ggplot2::theme(panel.grid.major = ggplot2::element_line(color = "gray90", linewidth = 0.2),
-                 panel.grid.minor = ggplot2::element_blank(),
-                 panel.background = ggplot2::element_rect(fill = "white", color = NA),
-                 plot.background = ggplot2::element_rect(fill = "white", color = NA))
+if("package:ggplot2" %in% search()) detach("package:ggplot2", unload = TRUE)
+library(ggplot2)
+`+.gg` <- ggplot2:::`+.gg`
 
+p1 <- ggplot() +
+  geom_raster(data = tiff_df, aes(x = lon, y = lat, fill = value)) +
+  geom_path(data = world_map, aes(x = long, y = lat, group = group), 
+            color = "black", linewidth = 0.3) +
+  scale_fill_gradient(low = "white", high = "blue", 
+                      name = "Flood\nExposure",
+                      na.value = "transparent") +
+  coord_fixed(xlim = c(tiff_extent[1], tiff_extent[2]),
+              ylim = c(tiff_extent[3], tiff_extent[4]),
+              expand = FALSE) +
+  labs(title = paste0("Flood Exposure - DFO ", flood_metadata$dfo_id, 
+                      "\n", flood_metadata$dfo_main_cause, " (", 
+                      flood_metadata$dfo_country, ")"), 
+       x = "Longitude", y = "Latitude") +
+  theme_minimal() +
+  theme(panel.grid.major = element_line(color = "gray90", linewidth = 0.2),
+        panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill = "white", color = NA),
+        plot.background = element_rect(fill = "white", color = NA))

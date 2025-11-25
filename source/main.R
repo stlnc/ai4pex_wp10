@@ -1,44 +1,14 @@
 ## --- Packages ---
 suppressPackageStartupMessages({
-  if (!requireNamespace("data.table", quietly = TRUE)) {
-    install.packages("data.table")
-  }
   library(data.table)
-  if (!requireNamespace("lubridate", quietly = TRUE)) {
-    install.packages("lubridate")
-  }
   library(lubridate)
-  # if (!requireNamespace("raster", quietly = TRUE)) {
-  #   install.packages("raster")
-  # }
-  # library(raster)
-  if (!requireNamespace("ggplot2", quietly = TRUE)) {
-    install.packages("ggplot2")
-  }
+  library(raster)
   library(ggplot2)
-  if (!requireNamespace("ncdf4", quietly = TRUE)) {
-    install.packages("ncdf4")
-  }
   library(ncdf4)
-  if (!requireNamespace("sp", quietly = TRUE)) {
-    install.packages("sp")
-  }
   library(sp)
-  if (!requireNamespace("sf", quietly = TRUE)) {
-    install.packages("sf")
-  }
   library(sf)
-  if (!requireNamespace("stars", quietly = TRUE)) {
-    install.packages("stars")
-  } 
   library(stars)
-  if (!requireNamespace("parallel", quietly = TRUE)) {
-    install.packages("parallel")
-  } 
   library(parallel)
-  if (!requireNamespace("terra", quietly = TRUE)) {
-    install.packages("terra")
-  } 
   library(terra)
 })
 
