@@ -143,27 +143,3 @@ p2 <- ggplot() +
 combined_plot <- plot_grid(p1, p2, ncol = 2, nrow = 1)
 
 print(combined_plot)
-
-if("package:ggplot2" %in% search()) detach("package:ggplot2", unload = TRUE)
-library(ggplot2)
-`+.gg` <- ggplot2:::`+.gg`
-
-p1 <- ggplot() +
-  geom_raster(data = tiff_df, aes(x = lon, y = lat, fill = value)) +
-  geom_path(data = world_map, aes(x = long, y = lat, group = group), 
-            color = "black", linewidth = 0.3) +
-  scale_fill_gradient(low = "white", high = "blue", 
-                      name = "Flood\nExposure",
-                      na.value = "transparent") +
-  coord_fixed(xlim = c(tiff_extent[1], tiff_extent[2]),
-              ylim = c(tiff_extent[3], tiff_extent[4]),
-              expand = FALSE) +
-  labs(title = paste0("Flood Exposure - DFO ", flood_metadata$dfo_id, 
-                      "\n", flood_metadata$dfo_main_cause, " (", 
-                      flood_metadata$dfo_country, ")"), 
-       x = "Longitude", y = "Latitude") +
-  theme_minimal() +
-  theme(panel.grid.major = element_line(color = "gray90", linewidth = 0.2),
-        panel.grid.minor = element_blank(),
-        panel.background = element_rect(fill = "white", color = NA),
-        plot.background = element_rect(fill = "white", color = NA))
