@@ -3,13 +3,13 @@ suppressPackageStartupMessages({
   library(data.table)
   library(lubridate)
   library(raster)
-  library(ggplot2)
   library(ncdf4)
   library(sp)
   library(sf)
   library(stars)
   library(parallel)
   library(terra)
+  library(ggplot2)
 })
 
 ## --- Paths ---

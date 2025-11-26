@@ -4,10 +4,12 @@ library(cowplot)
 library(maps)
 library(jsonlite)
 
-dir.create(PATH_FLOODS)
-dir.create(PATH_PREC)
+dir.create(PATH_FLOODS, showWarnings = F)
+dir.create(PATH_PREC, showWarnings = F)
 
 set.seed(Sys.time())
+
+## Flood data ----
 
 zip_files <- list.files(PATH_FLOODS, pattern = "\\.zip$", recursive = TRUE, full.names = TRUE)
 if (length(zip_files) == 0) stop("No zip files found in ", PATH_FLOODS)
@@ -47,6 +49,8 @@ tiff_extent <- as.vector(tiff_extent)
 start_date <- as.Date(flood_metadata$dfo_began)
 end_date <- as.Date(flood_metadata$dfo_ended)
 
+## precipitation data ----
+
 PATH_MSWEP <- paste0(PATH_PREC, "/mswep-v2-8_tp_mm_land_197901_202012_025_daily.nc")
 nc <- nc_open(PATH_MSWEP)
 time_var <- ncvar_get(nc, "time")
@@ -74,10 +78,7 @@ suppressWarnings(mswep_subset <- rast(PATH_MSWEP, subds = "mask", lyrs = time_in
 
 crs(mswep_subset) <- "EPSG:4326"
 ext(mswep_subset) <- c(-180, 180, -90, 90)
-mswep_subset <- flip(mswep_subset, direction = "vertical")
-
 mswep_subset[mswep_subset == -9999] <- NA
-
 mswep_cropped <- crop(mswep_subset, tiff_extent)
 
 if (nlyr(mswep_cropped) > 1) {
@@ -91,6 +92,8 @@ colnames(tiff_df) <- c("lon", "lat", "value")
 tiff_df <- as.data.frame(lapply(tiff_df, as.numeric))
 
 unlink(temp_dir, recursive = TRUE)
+
+## plotting ----
 
 world_map <- map_data("world")
 
@@ -122,8 +125,8 @@ p2 <- ggplot() +
   geom_path(data = world_map, aes(x = long, y = lat, group = group), 
             color = "black", linewidth = 0.3) +
   scale_fill_gradientn(colors = c("#FFFFFF", "#EDF8B1", "#C7E9B4", 
-                                   "#7FCDBB", "#41B6C4", "#1D91C0", 
-                                   "#225EA8", "#253494", "#081D58"),
+                                  "#7FCDBB", "#41B6C4", "#1D91C0", 
+                                  "#225EA8", "#253494", "#081D58"),
                        name = "Total Precip.\n(mm, land only)",
                        na.value = "transparent",
                        limits = c(0, NA)) +
